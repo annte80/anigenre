@@ -8,8 +8,8 @@ import type { AnigenreEntity } from "@/types";
 import { Loader2, AlertCircle, RotateCw } from "lucide-react";
 
 function App() {
-  const path = window.location.pathname;
-  const isAdmin = path === "/admin";
+    const path = window.location.pathname.replace(/\/$/, '');
+  const isAdmin = path === "/admin" || path === "/secadmin";
 
   if (isAdmin) {
     return (
