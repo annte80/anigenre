@@ -1,0 +1,2 @@
+[functions.anigenre-admin]
+verify_jwt = false
