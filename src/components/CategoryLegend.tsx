@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { HelpCircle, X } from "lucide-react";
 import { CATEGORIES } from "@/types";
+import { useTheme } from "@/lib/theme";
 
 export function CategoryLegend() {
   const [open, setOpen] = useState(false);
+  const { theme } = useTheme();
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-teal-500 text-slate-900 shadow-lg shadow-teal-500/30 transition hover:bg-teal-400 hover:scale-105 active:scale-95"
+        className={`fixed bottom-4 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition hover:scale-105 active:scale-95 ${theme.solidClass} ${theme.solidTextClass} ${theme.shadowClass}`}
         aria-label="Category legend"
       >
         <HelpCircle className="h-6 w-6" />
@@ -37,7 +39,7 @@ export function CategoryLegend() {
             <div className="space-y-3">
               {CATEGORIES.map((cat) => (
                 <div key={cat.key} className="flex gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-teal-500/15 text-xs font-bold text-teal-400">
+                  <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold ${theme.iconBgClass} ${theme.accentTextClass}`}>
                     {cat.label[0]}
                   </div>
                   <div>
@@ -52,7 +54,7 @@ export function CategoryLegend() {
               ))}
             </div>
             <div className="mt-4 rounded-lg bg-slate-800 p-3 text-xs text-slate-400">
-              <span className="text-teal-400">🟩 Green</span> = exact match.{" "}
+              <span className={theme.accentTextClass}>🟩 Green</span> = exact match.{" "}
               <span className="text-slate-300">⬜ Gray</span> = no match. A gray
               Type tile means your guess is a different kind of thing than
               today's answer — a useful clue!
