@@ -18,11 +18,7 @@ export function Header() {
         </a>
         <div className="flex items-center gap-3">
           
-            href="/"
-            className={`text-sm font-medium text-slate-300 transition ${theme.hoverTextClass}`}
-          >
-            Home
-          </a>
+                      <a href="/" className={`text-sm font-medium text-slate-300 transition ${theme.hoverTextClass}`}>Home</a>
           <span className="rounded-full border border-slate-700 bg-slate-800/50 px-3 py-1 text-xs font-medium text-slate-500 cursor-not-allowed select-none">
             Game Maker — Coming Soon
           </span>
