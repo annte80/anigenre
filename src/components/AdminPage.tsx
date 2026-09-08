@@ -416,13 +416,23 @@ function CategorySelect({
   options: string[];
   onChange: (v: string) => void;
 }) {
-  const [showInput, setShowInput] = useState(false);
+    const [showInput, setShowInput] = useState(false);
   const [newVal, setNewVal] = useState("");
+  const [justAdded, setJustAdded] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const displayOptions = useMemo(() => {
+    const merged = [...options];
+    for (const v of justAdded) {
+      if (!merged.includes(v)) merged.push(v);
+    }
+    return merged;
+  }, [options, justAdded]);
 
   const handleAddNew = () => {
     const v = newVal.trim();
     if (v) {
+      setJustAdded((prev) => (prev.includes(v) ? prev : [...prev, v]));
       onChange(v);
       setNewVal("");
       setShowInput(false);
@@ -484,8 +494,8 @@ function CategorySelect({
             }}
             className="w-full rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-2 text-sm text-white outline-none focus:border-teal-500"
           >
-            <option value="">Select {label}...</option>
-            {options.map((opt) => (
+                        <option value="">Select {label}...</option>
+            {displayOptions.map((opt) => (
               <option key={opt} value={opt}>
                 {opt}
               </option>
