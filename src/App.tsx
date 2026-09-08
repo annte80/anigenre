@@ -5,15 +5,17 @@ import { CategoryLegend } from "@/components/CategoryLegend";
 import { AdminPage } from "@/components/AdminPage";
 import { fetchEntities, fetchConfig } from "@/supabaseClient";
 import type { AnigenreEntity } from "@/types";
+import { useTheme } from "@/lib/theme";
 import { Loader2, AlertCircle, RotateCw } from "lucide-react";
 
 function App() {
     const path = window.location.pathname.replace(/\/$/, '');
   const isAdmin = path === "/admin" || path === "/secadmin";
+  const { theme } = useTheme();
 
   if (isAdmin) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white">
+      <div className={`min-h-screen ${theme.bgGradientClass} text-white`}>
         <Header />
         <AdminPage />
       </div>
@@ -28,6 +30,7 @@ function GameApp() {
   const [launchDate, setLaunchDate] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const { theme } = useTheme();
 
   const loadData = async () => {
     setLoading(true);
@@ -50,11 +53,11 @@ function GameApp() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className={`min-h-screen ${theme.bgGradientClass} text-white`}>
       <Header />
       {loading ? (
         <div className="flex min-h-[60vh] flex-col items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
+          <Loader2 className={`h-8 w-8 animate-spin ${theme.accentTextClass}`} />
           <p className="mt-3 text-sm text-slate-400">Loading today's puzzle...</p>
         </div>
       ) : error ? (
