@@ -7,9 +7,9 @@ export function ThemePicker() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-4 left-4 z-40">
+    <div className="fixed bottom-20 right-4 z-40">
       {open && (
-        <div className="absolute bottom-full left-0 mb-2 p-2 bg-slate-900 border border-slate-700 rounded-xl shadow-xl flex flex-col gap-1 min-w-[140px]">
+        <div className="absolute bottom-full right-0 mb-2 p-2 bg-slate-900 border border-slate-700 rounded-xl shadow-xl flex flex-col gap-1 min-w-[140px]">
           {(Object.keys(THEMES) as ThemeId[]).map((id) => (
             <button
               key={id}
