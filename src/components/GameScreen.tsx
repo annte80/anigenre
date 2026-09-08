@@ -11,6 +11,7 @@ import {
   type GuessResult,
 } from "@/gameLogic";
 import { Check, X, Search, Copy, CheckCheck, Trophy, Frown } from "lucide-react";
+import { useTheme } from "@/lib/theme";
 
 interface GameState {
   guesses: GuessResult[];
@@ -43,6 +44,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
   const answer = useMemo(() => getTodayAnswer(entities, launchDate), [entities, launchDate]);
   const puzzleNumber = useMemo(() => getPuzzleNumber(launchDate), [launchDate]);
   const todayKey = useMemo(() => getTodayKey(), []);
+  const { theme } = useTheme();
 
   const [gameState, setGameState] = useState<GameState>(() => loadGameState(todayKey));
   const [input, setInput] = useState("");
@@ -146,7 +148,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
       {/* Guesses remaining */}
       <div className="mb-4 flex items-center justify-between">
         <div className="text-sm text-slate-400">
-          Puzzle <span className="font-semibold text-teal-400">#{puzzleNumber}</span>
+          Puzzle <span className={`font-semibold ${theme.accentTextClass}`}>#{puzzleNumber}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
@@ -156,7 +158,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
                 className={`h-2 w-2 rounded-full transition ${
                   i < gameState.guesses.length
                     ? gameState.guesses[i].entity.id === answer.id
-                      ? "bg-teal-400"
+                      ? theme.swatchClass
                       : "bg-slate-600"
                     : "bg-slate-700"
                 }`}
@@ -188,7 +190,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               placeholder="Type a name to search..."
-              className="w-full rounded-xl border border-slate-700 bg-slate-900 py-3 pl-10 pr-4 text-white placeholder-slate-500 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+              className={`w-full rounded-xl border border-slate-700 bg-slate-900 py-3 pl-10 pr-4 text-white placeholder-slate-500 outline-none transition ${theme.ringClass}`}
               autoComplete="off"
               autoCorrect="off"
               spellCheck={false}
@@ -214,7 +216,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
                     onMouseEnter={() => setHighlightIdx(i)}
                     className={`flex w-full items-center justify-between px-4 py-2.5 text-left transition ${
                       i === highlightIdx
-                        ? "bg-teal-500/10"
+                        ? theme.softBgClass
                         : "hover:bg-slate-800"
                     } ${guessedIds.has(entity.id) ? "opacity-40" : ""}`}
                   >
@@ -252,8 +254,8 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
         <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-900 p-6 text-center">
           <div className="mb-3 flex justify-center">
             {gameState.status === "won" ? (
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-teal-500/15">
-                <Trophy className="h-7 w-7 text-teal-400" />
+              <div className={`flex h-14 w-14 items-center justify-center rounded-full ${theme.iconBgClass}`}>
+                <Trophy className={`h-7 w-7 ${theme.accentTextClass}`} />
               </div>
             ) : (
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-700">
@@ -267,7 +269,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
           <p className="text-sm text-slate-400 mb-1">
             Today's answer was
           </p>
-          <p className="text-lg font-semibold text-teal-400 mb-4">
+          <p className={`text-lg font-semibold mb-4 ${theme.accentTextClass}`}>
             {answer.name}
           </p>
           <p className="text-xs text-slate-500 mb-4">
@@ -275,7 +277,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
           </p>
           <button
             onClick={handleCopy}
-            className="inline-flex items-center gap-2 rounded-lg bg-teal-500 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-teal-400 active:scale-95"
+            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition active:scale-95 ${theme.solidClass} ${theme.solidTextClass}`}
           >
             {copied ? (
               <>
@@ -297,11 +299,13 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
 }
 
 function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean }) {
+  const { theme } = useTheme();
+
   return (
     <div
       className={`rounded-xl border p-3 transition ${
         isWinning
-          ? "border-teal-500/40 bg-teal-500/5"
+          ? `${theme.borderClass} ${theme.softBgClass}`
           : "border-slate-800 bg-slate-900/50"
       }`}
     >
@@ -319,7 +323,7 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
               key={cat.key}
               className={`flex flex-col items-center justify-center rounded-lg py-1.5 transition ${
                 matched
-                  ? "bg-teal-500 text-slate-900"
+                  ? `${theme.solidClass} ${theme.solidTextClass}`
                   : "bg-slate-800 text-slate-500"
               }`}
             >
