@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { GameScreen } from "@/components/GameScreen";
 import { CategoryLegend } from "@/components/CategoryLegend";
 import { AdminPage } from "@/components/AdminPage";
+import { ThemePicker } from "@/components/ThemePicker";
 import { fetchEntities, fetchConfig } from "@/supabaseClient";
 import type { AnigenreEntity } from "@/types";
 import { useTheme } from "@/lib/theme";
@@ -18,6 +19,7 @@ function App() {
       <div className={`min-h-screen ${theme.bgGradientClass} text-white`}>
         <Header />
         <AdminPage />
+        <ThemePicker />
       </div>
     );
   }
@@ -79,6 +81,7 @@ function GameApp() {
           <CategoryLegend />
         </>
       )}
+      <ThemePicker />
     </div>
   );
 }
