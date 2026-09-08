@@ -54,8 +54,7 @@ export function CategoryLegend() {
               ))}
             </div>
             <div className="mt-4 rounded-lg bg-slate-800 p-3 text-xs text-slate-400">
-              <span className={theme.accentTextClass}>🟩 Green</span> = exact match.{" "}
-              <span className="text-slate-300">⬜ Gray</span> = no match. A gray
+                            <span className="text-slate-300">⬜ Gray</span> = no match. A gray
               Type tile means your guess is a different kind of thing than
               today's answer — a useful clue!
             </div>
