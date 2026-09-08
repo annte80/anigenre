@@ -4,6 +4,7 @@ import { CATEGORIES } from "@/types";
 import { Lock, Plus, Trash2, Pencil, Search, X, Check, Loader2 } from "lucide-react";
 
 const ADMIN_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/anigenre-admin`;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const SESSION_KEY = "anigenre_admin_session";
 
 type View = "password" | "main";
@@ -43,8 +44,8 @@ export function AdminPage() {
     setAuthLoading(true);
     setAuthError("");
     try {
-      const res = await fetch(`${ADMIN_FUNCTION_URL}/entities`, {
-        headers: { Authorization: `Bearer ${password}` },
+            const res = await fetch(`${ADMIN_FUNCTION_URL}/entities`, {
+        headers: { Authorization: `Bearer ${password}`, apikey: SUPABASE_ANON_KEY },
       });
       if (res.status === 401) {
         setAuthError("Incorrect password.");
@@ -111,7 +112,7 @@ function AdminMain({ password }: { password: string }) {
   const [error, setError] = useState("");
   const nameRef = useRef<HTMLInputElement>(null);
 
-  const headers = { Authorization: `Bearer ${password}`, "Content-Type": "application/json" };
+    const headers = { Authorization: `Bearer ${password}`, apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" };
 
   const loadEntities = async () => {
     setLoading(true);
