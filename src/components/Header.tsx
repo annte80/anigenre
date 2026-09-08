@@ -1,6 +1,5 @@
 import { Sparkles } from "lucide-react";
 import { useTheme } from "@/lib/theme";
-import { ThemePicker } from "@/components/ThemePicker";
 
 export function Header() {
   const { theme } = useTheme();
@@ -17,14 +16,12 @@ export function Header() {
           </span>
         </a>
         <div className="flex items-center gap-3">
-          
-                      <a href="/" className={`text-sm font-medium text-slate-300 transition ${theme.hoverTextClass}`}>Home</a>
+          <a href="/" className={`text-sm font-medium text-slate-300 transition ${theme.hoverTextClass}`}>Home</a>
           <span className="rounded-full border border-slate-700 bg-slate-800/50 px-3 py-1 text-xs font-medium text-slate-500 cursor-not-allowed select-none">
             Game Maker — Coming Soon
           </span>
         </div>
       </div>
-      <ThemePicker />
     </header>
   );
 }
