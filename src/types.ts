@@ -2,14 +2,24 @@ export interface AnigenreEntity {
   id: string;
   name: string;
   aliases: string;
-  genre: string;
-  type: string;
-  anime: string;
-  format: string;
-  studio: string;
-  demographic: string;
+  genre: string[];
+  type: string[];
+  anime: string[];
+  format: string[];
+  studio: string[];
+  demographic: string[];
   shuffle_rank: number;
   created_at: string;
+}
+
+// Safely reads a category value whether the underlying data is still the
+// old single-string shape or the new multi-value array shape. Lets us
+// deploy this code before the database migration runs, with zero risk of
+// a mismatched window between the two.
+export function toValueArray(v: string[] | string | null | undefined): string[] {
+  if (Array.isArray(v)) return v;
+  if (typeof v === "string" && v.length > 0) return [v];
+  return [];
 }
 
 export interface AnigenreConfig {
