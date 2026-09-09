@@ -1,5 +1,5 @@
 import type { AnigenreEntity, CategoryKey } from "@/types";
-import { CATEGORIES } from "@/types";
+import { CATEGORIES, toValueArray } from "@/types";
 
 export interface GuessResult {
   entity: AnigenreEntity;
@@ -12,7 +12,9 @@ export function compareGuess(
 ): GuessResult {
   const matches = {} as Record<CategoryKey, boolean>;
   for (const cat of CATEGORIES) {
-    matches[cat.key] = guess[cat.key].toLowerCase() === answer[cat.key].toLowerCase();
+    const guessValues = toValueArray(guess[cat.key]).map((v) => v.toLowerCase());
+    const answerValues = toValueArray(answer[cat.key]).map((v) => v.toLowerCase());
+    matches[cat.key] = guessValues.some((v) => answerValues.includes(v));
   }
   return { entity: guess, matches };
 }
