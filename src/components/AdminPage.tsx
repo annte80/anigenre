@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import type { AnigenreEntity, CategoryKey } from "@/types";
-import { CATEGORIES } from "@/types";
+import { CATEGORIES, toValueArray } from "@/types";
 import { Lock, Plus, Trash2, Pencil, Search, X, Check, Loader2 } from "lucide-react";
 
 const ADMIN_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/anigenre-admin`;
@@ -13,23 +13,23 @@ interface EditState {
   id: string;
   name: string;
   aliases: string;
-  genre: string;
-  type: string;
-  anime: string;
-  format: string;
-  studio: string;
-  demographic: string;
+  genre: string[];
+  type: string[];
+  anime: string[];
+  format: string[];
+  studio: string[];
+  demographic: string[];
 }
 
 const EMPTY_FORM = {
   name: "",
   aliases: "",
-  genre: "",
-  type: "",
-  anime: "",
-  format: "",
-  studio: "",
-  demographic: "",
+  genre: [] as string[],
+  type: [] as string[],
+  anime: [] as string[],
+  format: [] as string[],
+  studio: [] as string[],
+  demographic: [] as string[],
 };
 
 export function AdminPage() {
@@ -44,7 +44,7 @@ export function AdminPage() {
     setAuthLoading(true);
     setAuthError("");
     try {
-            const res = await fetch(`${ADMIN_FUNCTION_URL}/entities`, {
+      const res = await fetch(`${ADMIN_FUNCTION_URL}/entities`, {
         headers: { Authorization: `Bearer ${password}`, apikey: SUPABASE_ANON_KEY },
       });
       if (res.status === 401) {
@@ -112,7 +112,7 @@ function AdminMain({ password }: { password: string }) {
   const [error, setError] = useState("");
   const nameRef = useRef<HTMLInputElement>(null);
 
-    const headers = { Authorization: `Bearer ${password}`, apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" };
+  const headers = { Authorization: `Bearer ${password}`, apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" };
 
   const loadEntities = async () => {
     setLoading(true);
@@ -147,8 +147,10 @@ function AdminMain({ password }: { password: string }) {
     };
     for (const e of entities) {
       for (const cat of CATEGORIES) {
-        const v = e[cat.key];
-        if (v && !vals[cat.key].includes(v)) vals[cat.key].push(v);
+        const vs = toValueArray(e[cat.key]);
+        for (const v of vs) {
+          if (v && !vals[cat.key].includes(v)) vals[cat.key].push(v);
+        }
       }
     }
     for (const k of Object.keys(vals) as CategoryKey[]) vals[k].sort();
@@ -156,7 +158,15 @@ function AdminMain({ password }: { password: string }) {
   }, [entities]);
 
   const handleSubmit = async () => {
-    if (!form.name.trim() || !form.genre || !form.type || !form.anime || !form.format || !form.studio || !form.demographic) {
+    if (
+      !form.name.trim() ||
+      form.genre.length === 0 ||
+      form.type.length === 0 ||
+      form.anime.length === 0 ||
+      form.format.length === 0 ||
+      form.studio.length === 0 ||
+      form.demographic.length === 0
+    ) {
       setError("Please fill in all fields.");
       setTimeout(() => setError(""), 3000);
       return;
@@ -228,8 +238,8 @@ function AdminMain({ password }: { password: string }) {
     return entities.filter((e) =>
       e.name.toLowerCase().includes(q) ||
       e.aliases.toLowerCase().includes(q) ||
-      e.anime.toLowerCase().includes(q) ||
-      e.type.toLowerCase().includes(q),
+      toValueArray(e.anime).some((v) => v.toLowerCase().includes(q)) ||
+      toValueArray(e.type).some((v) => v.toLowerCase().includes(q)),
     );
   }, [entities, filter]);
 
@@ -280,7 +290,7 @@ function AdminMain({ password }: { password: string }) {
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {CATEGORIES.map((cat) => (
-              <CategorySelect
+              <MultiCategorySelect
                 key={cat.key}
                 label={cat.label}
                 value={form[cat.key]}
@@ -348,17 +358,17 @@ function AdminMain({ password }: { password: string }) {
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-semibold text-white">{entity.name}</div>
                       <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-slate-500">
-                        <span className="text-slate-400">{entity.type}</span>
+                        <span className="text-slate-400">{toValueArray(entity.type).join(', ')}</span>
                         <span>·</span>
-                        <span>{entity.anime}</span>
+                        <span>{toValueArray(entity.anime).join(', ')}</span>
                         <span>·</span>
-                        <span>{entity.genre}</span>
+                        <span>{toValueArray(entity.genre).join(', ')}</span>
                         <span>·</span>
-                        <span>{entity.format}</span>
+                        <span>{toValueArray(entity.format).join(', ')}</span>
                         <span>·</span>
-                        <span>{entity.studio}</span>
+                        <span>{toValueArray(entity.studio).join(', ')}</span>
                         <span>·</span>
-                        <span>{entity.demographic}</span>
+                        <span>{toValueArray(entity.demographic).join(', ')}</span>
                       </div>
                       {entity.aliases && (
                         <div className="mt-0.5 text-[10px] text-slate-600">
@@ -373,12 +383,12 @@ function AdminMain({ password }: { password: string }) {
                             id: entity.id,
                             name: entity.name,
                             aliases: entity.aliases,
-                            genre: entity.genre,
-                            type: entity.type,
-                            anime: entity.anime,
-                            format: entity.format,
-                            studio: entity.studio,
-                            demographic: entity.demographic,
+                            genre: toValueArray(entity.genre),
+                            type: toValueArray(entity.type),
+                            anime: toValueArray(entity.anime),
+                            format: toValueArray(entity.format),
+                            studio: toValueArray(entity.studio),
+                            demographic: toValueArray(entity.demographic),
                           })
                         }
                         className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-teal-400 transition"
@@ -405,18 +415,18 @@ function AdminMain({ password }: { password: string }) {
   );
 }
 
-function CategorySelect({
+function MultiCategorySelect({
   label,
   value,
   options,
   onChange,
 }: {
   label: string;
-  value: string;
+  value: string[];
   options: string[];
-  onChange: (v: string) => void;
+  onChange: (v: string[]) => void;
 }) {
-    const [showInput, setShowInput] = useState(false);
+  const [showInput, setShowInput] = useState(false);
   const [newVal, setNewVal] = useState("");
   const [justAdded, setJustAdded] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -429,11 +439,26 @@ function CategorySelect({
     return merged;
   }, [options, justAdded]);
 
+  const availableOptions = useMemo(
+    () => displayOptions.filter((o) => !value.includes(o)),
+    [displayOptions, value],
+  );
+
+  const addValue = (v: string) => {
+    const trimmed = v.trim();
+    if (!trimmed || value.includes(trimmed)) return;
+    onChange([...value, trimmed]);
+  };
+
+  const removeValue = (v: string) => {
+    onChange(value.filter((x) => x !== v));
+  };
+
   const handleAddNew = () => {
     const v = newVal.trim();
     if (v) {
       setJustAdded((prev) => (prev.includes(v) ? prev : [...prev, v]));
-      onChange(v);
+      addValue(v);
       setNewVal("");
       setShowInput(false);
     }
@@ -442,6 +467,28 @@ function CategorySelect({
   return (
     <div>
       <label className="mb-1 block text-xs font-medium text-slate-400">{label}</label>
+
+      {value.length > 0 && (
+        <div className="mb-1.5 flex flex-wrap gap-1">
+          {value.map((v) => (
+            <span
+              key={v}
+              className="inline-flex items-center gap-1 rounded-full bg-teal-500/15 px-2.5 py-1 text-xs font-medium text-teal-300"
+            >
+              {v}
+              <button
+                type="button"
+                onClick={() => removeValue(v)}
+                className="text-teal-400 hover:text-white"
+                aria-label={`Remove ${v}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
       {showInput ? (
         <div className="flex gap-1">
           <input
@@ -482,27 +529,27 @@ function CategorySelect({
           </button>
         </div>
       ) : (
-        <div className="flex gap-1">
-          <select
-            value={value}
-            onChange={(e) => {
-              if (e.target.value === "__new__") {
-                setShowInput(true);
-              } else {
-                onChange(e.target.value);
-              }
-            }}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-2 text-sm text-white outline-none focus:border-teal-500"
-          >
-                        <option value="">Select {label}...</option>
-            {displayOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-            <option value="__new__">+ Add new value...</option>
-          </select>
-        </div>
+        <select
+          value=""
+          onChange={(e) => {
+            if (e.target.value === "__new__") {
+              setShowInput(true);
+            } else if (e.target.value) {
+              addValue(e.target.value);
+            }
+          }}
+          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-2 text-sm text-white outline-none focus:border-teal-500"
+        >
+          <option value="">
+            {value.length > 0 ? "+ Add another..." : `Select ${label}...`}
+          </option>
+          {availableOptions.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+          <option value="__new__">+ Add new value...</option>
+        </select>
       )}
     </div>
   );
@@ -541,7 +588,7 @@ function EditRow({
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {CATEGORIES.map((cat) => (
-          <CategorySelect
+          <MultiCategorySelect
             key={cat.key}
             label={cat.label}
             value={editState[cat.key]}
