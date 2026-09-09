@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import type { AnigenreEntity, CategoryKey } from "@/types";
-import { CATEGORIES, MAX_GUESSES } from "@/types";
+import { CATEGORIES, MAX_GUESSES, toValueArray } from "@/types";
 import {
   compareGuess,
   searchEntities,
@@ -223,8 +223,8 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
                     <span className="text-sm font-medium text-white">
                       {entity.name}
                     </span>
-                    <span className="text-xs text-slate-500">
-                      {entity.anime}
+                                        <span className="text-xs text-slate-500">
+                      {toValueArray(entity.anime).join(', ')}
                     </span>
                   </button>
                 ))
@@ -273,7 +273,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
             {answer.name}
           </p>
           <p className="text-xs text-slate-500 mb-4">
-            {answer.anime} · {answer.type} · {answer.format} · {answer.studio}
+                        {toValueArray(answer.anime).join(', ')} · {toValueArray(answer.type).join(', ')} · {toValueArray(answer.format).join(', ')} · {toValueArray(answer.studio).join(', ')}
           </p>
           <button
             onClick={handleCopy}
@@ -313,7 +313,7 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
         <span className="text-sm font-semibold text-white">
           {guess.entity.name}
         </span>
-        <span className="text-xs text-slate-500">{guess.entity.anime}</span>
+                <span className="text-xs text-slate-500">{toValueArray(guess.entity.anime).join(', ')}</span>
       </div>
       <div className="grid grid-cols-6 gap-1.5">
         {CATEGORIES.map((cat) => {
@@ -343,7 +343,7 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
         {CATEGORIES.map((cat) => (
           <span key={cat.key} className="text-[10px] text-slate-600">
             <span className="font-medium text-slate-500">{cat.label}:</span>{" "}
-            {guess.entity[cat.key]}
+                        {toValueArray(guess.entity[cat.key]).join(', ')}
           </span>
         ))}
       </div>
