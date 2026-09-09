@@ -201,9 +201,9 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
           )}
           {showSuggestions && input && (
             <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
-              {suggestions.length === 0 ? (
+                            {suggestions.length === 0 ? (
                 <div className="px-4 py-3 text-sm text-slate-500">
-                  No matches found
+                  {input.trim().length < 2 ? "Keep typing..." : "No matches found"}
                 </div>
               ) : (
                 suggestions.map((entity, i) => (
@@ -214,7 +214,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
                       submitGuess(entity);
                     }}
                     onMouseEnter={() => setHighlightIdx(i)}
-                    className={`flex w-full items-center justify-between px-4 py-2.5 text-left transition ${
+                    className={`flex w-full items-center px-4 py-2.5 text-left transition ${
                       i === highlightIdx
                         ? theme.softBgClass
                         : "hover:bg-slate-800"
@@ -223,16 +223,9 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
                     <span className="text-sm font-medium text-white">
                       {entity.name}
                     </span>
-                                        <span className="text-xs text-slate-500">
-                      {toValueArray(entity.anime).join(', ')}
-                    </span>
                   </button>
                 ))
               )}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Guess history */}
       <div className="space-y-2">
