@@ -8,6 +8,7 @@ export interface AnigenreEntity {
   format: string[];
   studio: string[];
   demographic: string[];
+  year: number | null;
   shuffle_rank: number;
   created_at: string;
 }
@@ -28,45 +29,53 @@ export interface AnigenreConfig {
 }
 
 export type CategoryKey =
-  | "genre"
+  | "year"
   | "type"
   | "anime"
   | "format"
   | "studio"
   | "demographic";
 
-export const CATEGORIES: { key: CategoryKey; label: string; description: string }[] = [
+export const YEAR_CLOSE_THRESHOLD = 3;
+
+export const CATEGORIES: { key: CategoryKey; label: string; description: string; kind: "text" | "numeric" }[] = [
   {
-    key: "genre",
-    label: "Genre",
-    description: "The anime's genre(s), e.g. Action, Romance, Comedy.",
+    key: "year",
+    label: "Year",
+    description: "The year this entity first appeared. Green = exact year, yellow = within 3 years, with an arrow showing if the real answer is earlier or later.",
+    kind: "numeric",
   },
   {
     key: "type",
     label: "Type",
     description:
       "What kind of thing this entity is: Character, Technique, Location, Organization, Item, Arc, etc.",
+    kind: "text",
   },
   {
     key: "anime",
     label: "Anime",
     description: "Which anime series this entity is from.",
+    kind: "text",
   },
   {
     key: "format",
     label: "Format",
     description: "TV series, Movie, OVA, etc.",
+    kind: "text",
   },
   {
     key: "studio",
     label: "Studio",
     description: "The animation studio that produced the anime.",
+    kind: "text",
   },
   {
     key: "demographic",
     label: "Demographic",
     description:
       "The target audience category, e.g. Shonen, Shojo, Seinen, Josei.",
+    kind: "text",
   },
 ];
 
