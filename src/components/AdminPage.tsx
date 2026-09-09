@@ -13,23 +13,23 @@ interface EditState {
   id: string;
   name: string;
   aliases: string;
-  genre: string[];
   type: string[];
   anime: string[];
   format: string[];
   studio: string[];
   demographic: string[];
+  year: string;
 }
 
 const EMPTY_FORM = {
   name: "",
   aliases: "",
-  genre: [] as string[],
   type: [] as string[],
   anime: [] as string[],
   format: [] as string[],
   studio: [] as string[],
   demographic: [] as string[],
+  year: "",
 };
 
 export function AdminPage() {
@@ -137,8 +137,7 @@ function AdminMain({ password }: { password: string }) {
   }, []);
 
   const categoryValues = useMemo(() => {
-    const vals: Record<CategoryKey, string[]> = {
-      genre: [],
+    const vals: Record<Exclude<CategoryKey, "year">, string[]> = {
       type: [],
       anime: [],
       format: [],
@@ -147,25 +146,29 @@ function AdminMain({ password }: { password: string }) {
     };
     for (const e of entities) {
       for (const cat of CATEGORIES) {
-        const vs = toValueArray(e[cat.key]);
+        if (cat.kind === "numeric") continue;
+        const key = cat.key as Exclude<CategoryKey, "year">;
+        const vs = toValueArray(e[key]);
         for (const v of vs) {
-          if (v && !vals[cat.key].includes(v)) vals[cat.key].push(v);
+          if (v && !vals[key].includes(v)) vals[key].push(v);
         }
       }
     }
-    for (const k of Object.keys(vals) as CategoryKey[]) vals[k].sort();
+    for (const k of Object.keys(vals) as Exclude<CategoryKey, "year">[]) vals[k].sort();
     return vals;
   }, [entities]);
 
   const handleSubmit = async () => {
+    const yearNum = parseInt(form.year, 10);
     if (
       !form.name.trim() ||
-      form.genre.length === 0 ||
       form.type.length === 0 ||
       form.anime.length === 0 ||
       form.format.length === 0 ||
       form.studio.length === 0 ||
-      form.demographic.length === 0
+      form.demographic.length === 0 ||
+      !form.year.trim() ||
+      Number.isNaN(yearNum)
     ) {
       setError("Please fill in all fields.");
       setTimeout(() => setError(""), 3000);
@@ -177,7 +180,7 @@ function AdminMain({ password }: { password: string }) {
       const res = await fetch(`${ADMIN_FUNCTION_URL}/entities`, {
         method: "POST",
         headers,
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, year: yearNum }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
@@ -210,18 +213,19 @@ function AdminMain({ password }: { password: string }) {
   const handleEditSave = async () => {
     if (!editState) return;
     try {
+      const yearNum = parseInt(editState.year, 10);
       const res = await fetch(`${ADMIN_FUNCTION_URL}/entities/${editState.id}`, {
         method: "PUT",
         headers,
         body: JSON.stringify({
           name: editState.name,
           aliases: editState.aliases,
-          genre: editState.genre,
           type: editState.type,
           anime: editState.anime,
           format: editState.format,
           studio: editState.studio,
           demographic: editState.demographic,
+          year: Number.isNaN(yearNum) ? null : yearNum,
         }),
       });
       if (!res.ok) throw new Error("Failed to update");
@@ -289,15 +293,24 @@ function AdminMain({ password }: { password: string }) {
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {CATEGORIES.map((cat) => (
-              <MultiCategorySelect
-                key={cat.key}
-                label={cat.label}
-                value={form[cat.key]}
-                options={categoryValues[cat.key]}
-                onChange={(v) => setForm({ ...form, [cat.key]: v })}
-              />
-            ))}
+            {CATEGORIES.map((cat) =>
+              cat.kind === "numeric" ? (
+                <YearInput
+                  key={cat.key}
+                  label={cat.label}
+                  value={form.year}
+                  onChange={(v) => setForm({ ...form, year: v })}
+                />
+              ) : (
+                <MultiCategorySelect
+                  key={cat.key}
+                  label={cat.label}
+                  value={form[cat.key as Exclude<CategoryKey, "year">]}
+                  options={categoryValues[cat.key as Exclude<CategoryKey, "year">]}
+                  onChange={(v) => setForm({ ...form, [cat.key]: v })}
+                />
+              )
+            )}
           </div>
           {error && <p className="text-sm text-red-400">{error}</p>}
           {confirmMsg && (
@@ -362,7 +375,7 @@ function AdminMain({ password }: { password: string }) {
                         <span>·</span>
                         <span>{toValueArray(entity.anime).join(', ')}</span>
                         <span>·</span>
-                        <span>{toValueArray(entity.genre).join(', ')}</span>
+                        <span>{entity.year ?? 'Unknown year'}</span>
                         <span>·</span>
                         <span>{toValueArray(entity.format).join(', ')}</span>
                         <span>·</span>
@@ -383,12 +396,12 @@ function AdminMain({ password }: { password: string }) {
                             id: entity.id,
                             name: entity.name,
                             aliases: entity.aliases,
-                            genre: toValueArray(entity.genre),
                             type: toValueArray(entity.type),
                             anime: toValueArray(entity.anime),
                             format: toValueArray(entity.format),
                             studio: toValueArray(entity.studio),
                             demographic: toValueArray(entity.demographic),
+                            year: entity.year != null ? String(entity.year) : "",
                           })
                         }
                         className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-teal-400 transition"
@@ -411,6 +424,29 @@ function AdminMain({ password }: { password: string }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function YearInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <label className="mb-1 block text-xs font-medium text-slate-400">{label}</label>
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="e.g. 2018"
+        className="w-full rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-2 text-sm text-white placeholder-slate-600 outline-none focus:border-teal-500"
+      />
     </div>
   );
 }
@@ -564,7 +600,7 @@ function EditRow({
 }: {
   editState: EditState;
   setEditState: React.Dispatch<React.SetStateAction<EditState | null>>;
-  categoryValues: Record<CategoryKey, string[]>;
+  categoryValues: Record<Exclude<CategoryKey, "year">, string[]>;
   onSave: () => void;
   onCancel: () => void;
 }) {
@@ -587,15 +623,24 @@ function EditRow({
         />
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {CATEGORIES.map((cat) => (
-          <MultiCategorySelect
-            key={cat.key}
-            label={cat.label}
-            value={editState[cat.key]}
-            options={categoryValues[cat.key]}
-            onChange={(v) => setEditState({ ...editState, [cat.key]: v })}
-          />
-        ))}
+        {CATEGORIES.map((cat) =>
+          cat.kind === "numeric" ? (
+            <YearInput
+              key={cat.key}
+              label={cat.label}
+              value={editState.year}
+              onChange={(v) => setEditState({ ...editState, year: v })}
+            />
+          ) : (
+            <MultiCategorySelect
+              key={cat.key}
+              label={cat.label}
+              value={editState[cat.key as Exclude<CategoryKey, "year">]}
+              options={categoryValues[cat.key as Exclude<CategoryKey, "year">]}
+              onChange={(v) => setEditState({ ...editState, [cat.key]: v })}
+            />
+          )
+        )}
       </div>
       <div className="flex gap-2">
         <button
