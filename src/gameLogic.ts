@@ -75,10 +75,10 @@ export function getTodayKey(): string {
 export function searchEntities(
   query: string,
   entities: AnigenreEntity[],
-  limit = 8,
+  limit = 5,
 ): AnigenreEntity[] {
   const q = query.trim().toLowerCase();
-  if (!q) return [];
+  if (q.length < 2) return [];
   const results: { entity: AnigenreEntity; score: number }[] = [];
   for (const entity of entities) {
     const nameLower = entity.name.toLowerCase();
