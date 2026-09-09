@@ -327,8 +327,8 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
               key={cat.key}
               className={`flex flex-col items-center justify-center rounded-lg py-1.5 transition ${tileClass}`}
             >
-              <span className="text-[10px] font-bold uppercase tracking-wide opacity-70">
-                {cat.label.slice(0, 3)}
+                            <span className="px-0.5 text-center text-[8px] font-bold uppercase leading-tight opacity-70">
+                {cat.label}
               </span>
               <div className="mt-0.5 flex items-center gap-0.5">
                 {state === "exact" ? (
