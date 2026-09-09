@@ -220,12 +220,16 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
                         : "hover:bg-slate-800"
                     } ${guessedIds.has(entity.id) ? "opacity-40" : ""}`}
                   >
-                    <span className="text-sm font-medium text-white">
+                                        <span className="text-sm font-medium text-white">
                       {entity.name}
                     </span>
                   </button>
                 ))
               )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Guess history */}
       <div className="space-y-2">
