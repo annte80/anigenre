@@ -1,22 +1,41 @@
 import type { AnigenreEntity, CategoryKey } from "@/types";
-import { CATEGORIES, toValueArray } from "@/types";
+import { CATEGORIES, toValueArray, YEAR_CLOSE_THRESHOLD } from "@/types";
+
+export type MatchState = "exact" | "close" | "none";
 
 export interface GuessResult {
   entity: AnigenreEntity;
-  matches: Record<CategoryKey, boolean>;
+  matches: Record<CategoryKey, MatchState>;
+  yearDirection: "up" | "down" | null;
 }
 
 export function compareGuess(
   guess: AnigenreEntity,
   answer: AnigenreEntity,
 ): GuessResult {
-  const matches = {} as Record<CategoryKey, boolean>;
+  const matches = {} as Record<CategoryKey, MatchState>;
+  let yearDirection: "up" | "down" | null = null;
+
   for (const cat of CATEGORIES) {
-    const guessValues = toValueArray(guess[cat.key]).map((v) => v.toLowerCase());
-    const answerValues = toValueArray(answer[cat.key]).map((v) => v.toLowerCase());
-    matches[cat.key] = guessValues.some((v) => answerValues.includes(v));
+    if (cat.kind === "numeric") {
+      const gy = guess.year;
+      const ay = answer.year;
+      if (gy == null || ay == null) {
+        matches[cat.key] = "none";
+      } else if (gy === ay) {
+        matches[cat.key] = "exact";
+      } else {
+        matches[cat.key] = Math.abs(gy - ay) <= YEAR_CLOSE_THRESHOLD ? "close" : "none";
+        yearDirection = ay > gy ? "up" : "down";
+      }
+      continue;
+    }
+    const guessValues = toValueArray(guess[cat.key] as string[] | string).map((v) => v.toLowerCase());
+    const answerValues = toValueArray(answer[cat.key] as string[] | string).map((v) => v.toLowerCase());
+    matches[cat.key] = guessValues.some((v) => answerValues.includes(v)) ? "exact" : "none";
   }
-  return { entity: guess, matches };
+
+  return { entity: guess, matches, yearDirection };
 }
 
 export function getTodayIndexUTC(launchDate: string, totalEntities: number): number {
@@ -91,7 +110,10 @@ export function buildShareText(
 ): string {
   const tiles = guesses
     .map((g) =>
-      CATEGORIES.map((c) => (g.matches[c.key] ? "🟩" : "⬜")).join(""),
+      CATEGORIES.map((c) => {
+        const m = g.matches[c.key];
+        return m === "exact" ? "🟩" : m === "close" ? "🟨" : "⬜";
+      }).join(""),
     )
     .join("\n");
   const solvedIn = solved ? `${guesses.length}/10` : "X/10";
