@@ -10,7 +10,7 @@ import {
   buildShareText,
   type GuessResult,
 } from "@/gameLogic";
-import { Check, X, Search, Copy, CheckCheck, Trophy, Frown } from "lucide-react";
+import { Check, X, Search, Copy, CheckCheck, Trophy, Frown, ArrowUp, ArrowDown } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 
 interface GameState {
@@ -273,7 +273,7 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
             {answer.name}
           </p>
           <p className="text-xs text-slate-500 mb-4">
-                        {toValueArray(answer.anime).join(', ')} · {toValueArray(answer.type).join(', ')} · {toValueArray(answer.format).join(', ')} · {toValueArray(answer.studio).join(', ')}
+            {toValueArray(answer.anime).join(', ')} · {toValueArray(answer.type).join(', ')} · {toValueArray(answer.format).join(', ')} · {toValueArray(answer.studio).join(', ')}{answer.year != null ? ` · ${answer.year}` : ''}
           </p>
           <button
             onClick={handleCopy}
@@ -317,24 +317,35 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
       </div>
       <div className="grid grid-cols-6 gap-1.5">
         {CATEGORIES.map((cat) => {
-          const matched = guess.matches[cat.key];
+          const state = guess.matches[cat.key];
+          const isYear = cat.kind === "numeric";
+          const tileClass =
+            state === "exact"
+              ? `${theme.solidClass} ${theme.solidTextClass}`
+              : state === "close"
+                ? "bg-yellow-500 text-yellow-950"
+                : "bg-slate-800 text-slate-500";
           return (
             <div
               key={cat.key}
-              className={`flex flex-col items-center justify-center rounded-lg py-1.5 transition ${
-                matched
-                  ? `${theme.solidClass} ${theme.solidTextClass}`
-                  : "bg-slate-800 text-slate-500"
-              }`}
+              className={`flex flex-col items-center justify-center rounded-lg py-1.5 transition ${tileClass}`}
             >
               <span className="text-[10px] font-bold uppercase tracking-wide opacity-70">
                 {cat.label.slice(0, 3)}
               </span>
-              {matched ? (
-                <Check className="h-3 w-3 mt-0.5" />
-              ) : (
-                <X className="h-3 w-3 mt-0.5" />
-              )}
+              <div className="mt-0.5 flex items-center gap-0.5">
+                {state === "exact" ? (
+                  <Check className="h-3 w-3" />
+                ) : (
+                  <X className="h-3 w-3" />
+                )}
+                {isYear && state !== "exact" && guess.yearDirection === "up" && (
+                  <ArrowUp className="h-3 w-3" />
+                )}
+                {isYear && state !== "exact" && guess.yearDirection === "down" && (
+                  <ArrowDown className="h-3 w-3" />
+                )}
+              </div>
             </div>
           );
         })}
@@ -343,7 +354,9 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
         {CATEGORIES.map((cat) => (
           <span key={cat.key} className="text-[10px] text-slate-600">
             <span className="font-medium text-slate-500">{cat.label}:</span>{" "}
-                        {toValueArray(guess.entity[cat.key]).join(', ')}
+            {cat.kind === "numeric"
+              ? (guess.entity.year ?? "Unknown")
+              : toValueArray(guess.entity[cat.key] as string[] | string).join(', ')}
           </span>
         ))}
       </div>
