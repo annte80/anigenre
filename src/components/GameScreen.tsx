@@ -315,9 +315,9 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
         </span>
                 <span className="text-xs text-slate-500">{toValueArray(guess.entity.anime).join(', ')}</span>
       </div>
-      {allExactButWrong && (
+            {allExactButWrong && (
         <div className="mb-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-[11px] font-medium text-amber-300">
-          Every category matches, but this isn't the answer [a different entity shares all the same categories] Keep guessing!
+          Every category matches, but this isn't the answer — a different entity shares all the same categories. Keep guessing!
         </div>
       )}
       <div className="grid grid-cols-6 gap-1.5">
@@ -330,31 +330,40 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
               : state === "close"
                 ? "bg-yellow-500 text-yellow-950"
                 : "bg-slate-800 text-slate-500";
+          const valueText =
+            cat.kind === "numeric"
+              ? String(guess.entity.year ?? "Unknown")
+              : toValueArray(guess.entity[cat.key] as string[] | string).join(', ');
           return (
-            <div
-              key={cat.key}
-              className={`flex flex-col items-center justify-center rounded-lg py-1.5 transition ${tileClass}`}
-            >
-                            <span className="px-0.5 text-center text-[8px] font-bold uppercase leading-tight opacity-70">
-                {cat.label}
-              </span>
-              <div className="mt-0.5 flex items-center gap-0.5">
-                {state === "exact" ? (
-                  <Check className="h-3 w-3" />
-                ) : (
-                  <X className="h-3 w-3" />
-                )}
-                {isYear && state !== "exact" && guess.yearDirection === "up" && (
-                  <ArrowUp className="h-3 w-3" />
-                )}
-                {isYear && state !== "exact" && guess.yearDirection === "down" && (
-                  <ArrowDown className="h-3 w-3" />
-                )}
+            <div key={cat.key} className="flex flex-col items-center">
+              <div
+                className={`flex w-full flex-col items-center justify-center rounded-lg py-1.5 transition ${tileClass}`}
+              >
+                <span className="px-0.5 text-center text-[8px] font-bold uppercase leading-tight opacity-70">
+                  {cat.label}
+                </span>
+                <div className="mt-0.5 flex items-center gap-0.5">
+                  {state === "exact" ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <X className="h-3 w-3" />
+                  )}
+                  {isYear && state !== "exact" && guess.yearDirection === "up" && (
+                    <ArrowUp className="h-3 w-3" />
+                  )}
+                  {isYear && state !== "exact" && guess.yearDirection === "down" && (
+                    <ArrowDown className="h-3 w-3" />
+                  )}
+                </div>
               </div>
+              <span className="mt-1 w-full break-words text-center text-[9px] leading-tight text-slate-500">
+                {valueText}
+              </span>
             </div>
           );
         })}
       </div>
+    </div>
       <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
         {CATEGORIES.map((cat) => (
           <span key={cat.key} className="text-[10px] text-slate-600">
