@@ -317,7 +317,7 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
       </div>
       {allExactButWrong && (
         <div className="mb-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-[11px] font-medium text-amber-300">
-          Every category matches, but this isn't the answer — a different entity shares all the same categories. Keep guessing!
+          Every category matches, but this isn't the answer [a different entity shares all the same categories] Keep guessing!
         </div>
       )}
       <div className="grid grid-cols-6 gap-1.5">
