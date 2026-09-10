@@ -364,6 +364,5 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
         })}
       </div>
     </div>
-          </div>
   );
 }
