@@ -170,8 +170,15 @@ function AdminMain({ password }: { password: string }) {
       !form.year.trim() ||
       Number.isNaN(yearNum)
     ) {
-      setError("Please fill in all fields.");
+            setError("Please fill in all fields.");
       setTimeout(() => setError(""), 3000);
+      return;
+    }
+    const nameLower = form.name.trim().toLowerCase();
+    const isDuplicate = entities.some((e) => e.name.trim().toLowerCase() === nameLower);
+    if (isDuplicate) {
+      setError(`"${form.name.trim()}" already exists in the database.`);
+      setTimeout(() => setError(""), 3500);
       return;
     }
     setSubmitting(true);
