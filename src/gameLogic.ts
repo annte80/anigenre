@@ -1,5 +1,5 @@
 import type { AnigenreEntity, CategoryKey } from "@/types";
-import { CATEGORIES, toValueArray, YEAR_CLOSE_THRESHOLD } from "@/types";
+import { CATEGORIES, toValueArray, YEAR_CLOSE_THRESHOLD, MAX_GUESSES } from "@/types";
 
 export type MatchState = "exact" | "close" | "none";
 
@@ -116,6 +116,6 @@ export function buildShareText(
       }).join(""),
     )
     .join("\n");
-  const solvedIn = solved ? `${guesses.length}/10` : "X/10";
+    const solvedIn = solved ? `${guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
   return `Anigenre #${puzzleNumber}\n${solvedIn}\n${tiles}`;
 }
