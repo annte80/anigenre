@@ -298,6 +298,9 @@ export function GameScreen({ entities, launchDate }: { entities: AnigenreEntity[
 function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean }) {
   const { theme } = useTheme();
 
+  const allExactButWrong =
+    !isWinning && CATEGORIES.every((c) => guess.matches[c.key] === "exact");
+
   return (
     <div
       className={`rounded-xl border p-3 transition ${
@@ -312,6 +315,11 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
         </span>
                 <span className="text-xs text-slate-500">{toValueArray(guess.entity.anime).join(', ')}</span>
       </div>
+      {allExactButWrong && (
+        <div className="mb-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-[11px] font-medium text-amber-300">
+          Every category matches, but this isn't the answer — a different entity shares all the same categories. Keep guessing!
+        </div>
+      )}
       <div className="grid grid-cols-6 gap-1.5">
         {CATEGORIES.map((cat) => {
           const state = guess.matches[cat.key];
