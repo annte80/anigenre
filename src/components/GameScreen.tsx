@@ -364,16 +364,6 @@ function GuessRow({ guess, isWinning }: { guess: GuessResult; isWinning: boolean
         })}
       </div>
     </div>
-      <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
-        {CATEGORIES.map((cat) => (
-          <span key={cat.key} className="text-[10px] text-slate-600">
-            <span className="font-medium text-slate-500">{cat.label}:</span>{" "}
-            {cat.kind === "numeric"
-              ? (guess.entity.year ?? "Unknown")
-              : toValueArray(guess.entity[cat.key] as string[] | string).join(', ')}
-          </span>
-        ))}
-      </div>
-    </div>
+          </div>
   );
 }
