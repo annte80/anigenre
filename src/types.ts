@@ -79,4 +79,4 @@ export const CATEGORIES: { key: CategoryKey; label: string; description: string;
   },
 ];
 
-export const MAX_GUESSES = 10;
+export const MAX_GUESSES = 8;
